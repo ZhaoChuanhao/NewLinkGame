@@ -3,6 +3,7 @@ package com.hd.utils;
 import com.hd.dto.MyPoint;
 import com.hd.dto.Panel;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import java.util.List;
  * @date 2018/10/10
  */
 public class LinkUtil {
+
+    public static List<MyPoint> list = new ArrayList<>();
 
     /**
      * 判断两点能否相连
@@ -38,9 +41,8 @@ public class LinkUtil {
             return false;
         }
 
-        MyPoint shortest = new MyPoint();
-        shortest.step = Integer.MAX_VALUE;
-        if(shortestPath(objects, point1, point2, shortest)){
+        if(shortestPath(objects, point1, point2)){
+            printPath(list);
             return true;
         }else {
             return false;
@@ -54,7 +56,7 @@ public class LinkUtil {
      * @param point2
      * @return
      */
-    public static boolean shortestPath(Object[][] objects, MyPoint point1, MyPoint point2, MyPoint shortest){
+    public static boolean shortestPath(Object[][] objects, MyPoint point1, MyPoint point2){
         if (point1.change > 2){
             return false;
         }
@@ -85,12 +87,15 @@ public class LinkUtil {
 
             //如果等于点2的位置，返回true
             if (temp.x == point2.x && temp.y == point2.y){
-                //输出路径坐标
-                if (temp.step <= shortest.step){
-                    shortest = temp;
-                    MyPoint.flag = true;
-                    printPath(shortest);
+                if (!list.isEmpty()){
+                    MyPoint myPoint = list.get(list.size() - 1);
+                    if (temp.step < myPoint.step){
+                        list.add(temp);
+                    }
+                }else {
+                    list.add(temp);
                 }
+                MyPoint.flag = true;
                 return true;
             }
             //如果走出界了，改变方向，进行下一轮循环
@@ -104,7 +109,7 @@ public class LinkUtil {
 
             //如果该点的折点数<=2，递归调用函数
             if (temp.change <= 2){
-                shortestPath(objects, temp, point2, shortest);
+                shortestPath(objects, temp, point2);
             }
         }
         if (MyPoint.flag == false){
@@ -115,14 +120,15 @@ public class LinkUtil {
 
     /**
      * 打印路径
-     * @param shortest
+     * @param list
      */
-    public static void printPath(MyPoint shortest){
-        //shortest就是最短路径连接成功的点
-        System.out.println("步数为：" + shortest.step);
-        while (shortest.prev != null){
-            System.out.print(shortest.x + "," + shortest.y + "  ");
-            shortest = shortest.prev;
+    public static void printPath(List<MyPoint> list){
+        //point就是最短路径连接成功的点
+        MyPoint point = list.get(list.size() - 1);
+        System.out.println("步数为：" + point.step);
+        while (point.prev != null){
+            System.out.print(point.x + "," + point.y + "  ");
+            point = point.prev;
         }
         System.out.println();
     }
